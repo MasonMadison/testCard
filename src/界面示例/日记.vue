@@ -1,12 +1,10 @@
 <template>
-<<<<<<< HEAD
-  <div class="clickdiv" tabindex="1" @click="handleClick">
+  <div class="clickdiv" tabindex="1" @click="$router.push('/选择框')">
     <span class="message-content font-bold underline">{{ display_text }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
-import dedent from 'dedent';
 import { onMounted, ref } from 'vue';
 
 const display_text = ref('');
@@ -26,27 +24,12 @@ function captureDisplayText() {
   display_text.value = text;
 }
 
-async function handleClick() {
-  await createChatMessages([
-    {
-      role: 'user',
-      message: dedent(`
-                 查看日记
-                 <update>
-                 _.set('世界.下次响应界面选择判断', 1);
-                 </update>
-               `),
-    },
-  ]);
-  triggerSlash('/trigger');
-}
-
 onMounted(() => {
   captureDisplayText();
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 body {
   display: flex;
   justify-content: center;
@@ -123,7 +106,3 @@ body {
   }
 }
 </style>
-=======
-  <RouterView />
-</template>
->>>>>>> e30a14f3f00fb4136bbc2cdbc696aff2f667275a

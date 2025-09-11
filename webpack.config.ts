@@ -10,6 +10,10 @@ import TerserPlugin from 'terser-webpack-plugin';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { VueLoaderPlugin } from 'vue-loader';
 import webpack from 'webpack';
+<<<<<<< HEAD
+=======
+import WebpackObfuscator from 'webpack-obfuscator';
+>>>>>>> b0edfd8e4d073506d29eee4fd67a3c4e89bb4a72
 const require = createRequire(import.meta.url);
 const HTMLInlineCSSWebpackPlugin = require('html-inline-css-webpack-plugin').default;
 
@@ -33,9 +37,51 @@ function parse_entry(script_file: string) {
   return { script: script_file };
 }
 
+<<<<<<< HEAD
 const config: Config = {
   port: 6621,
   entries: [...fs.globSync('src/**/index.ts'), ...fs.globSync('src/**/index.js')].map(parse_entry),
+=======
+function common_path(lhs: string, rhs: string) {
+  const lhs_parts = lhs.split(path.sep);
+  const rhs_parts = rhs.split(path.sep);
+  for (let i = 0; i < Math.min(lhs_parts.length, rhs_parts.length); i++) {
+    if (lhs_parts[i] !== rhs_parts[i]) {
+      return lhs_parts.slice(0, i).join(path.sep);
+    }
+  }
+  return lhs_parts.join(path.sep);
+}
+
+function glob_script_files() {
+  const files: string[] = fs
+    .globSync(`src/**/index.{ts,js}`)
+    .filter(file => process.env.CI !== 'true' || !fs.readFileSync(path.join(__dirname, file)).includes('@no-ci'));
+
+  const results: string[] = [];
+  const handle = (file: string) => {
+    const file_dirname = path.dirname(file);
+    for (const [index, result] of results.entries()) {
+      const result_dirname = path.dirname(result);
+      const common = common_path(result_dirname, file_dirname);
+      if (common === result_dirname) {
+        return;
+      }
+      if (common === file_dirname) {
+        results.splice(index, 1, file);
+        return;
+      }
+    }
+    results.push(file);
+  };
+  files.forEach(handle);
+  return results;
+}
+
+const config: Config = {
+  port: 6621,
+  entries: glob_script_files().map(parse_entry),
+>>>>>>> b0edfd8e4d073506d29eee4fd67a3c4e89bb4a72
 };
 
 let io: Server;
@@ -61,6 +107,7 @@ function watch_it(compiler: webpack.Compiler) {
 }
 
 function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Configuration {
+<<<<<<< HEAD
   const script_filepath = path.parse(entry.script);
 
   let plugins: webpack.Configuration['plugins'] = [];
@@ -85,6 +132,11 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
   }
   plugins.push({ apply: watch_it }, new VueLoaderPlugin());
 
+=======
+  const should_obfuscate = fs.readFileSync(path.join(__dirname, entry.script), 'utf-8').includes('@obfuscate');
+  const script_filepath = path.parse(entry.script);
+
+>>>>>>> b0edfd8e4d073506d29eee4fd67a3c4e89bb4a72
   return (_env, argv) => ({
     experiments: {
       outputModule: true,
@@ -169,8 +221,43 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
               use: 'html-loader',
               exclude: /node_modules/,
             },
+<<<<<<< HEAD
             {
               test: /\.(sa|sc)ss$/,
+=======
+          ].concat(
+            entry.html === undefined
+              ? <any[]>[
+                  {
+                    test: /\.vue\.s(a|c)ss$/,
+                    use: [
+                      'vue-style-loader',
+                      { loader: 'css-loader', options: { url: false } },
+                      'postcss-loader',
+                      'sass-loader',
+                    ],
+                    exclude: /node_modules/,
+                  },
+                  {
+                    test: /\.vue\.css$/,
+                    use: ['vue-style-loader', { loader: 'css-loader', options: { url: false } }, 'postcss-loader'],
+                    exclude: /node_modules/,
+                  },
+                  {
+                    test: /\.s(a|c)ss$/,
+                    use: [{ loader: 'css-loader', options: { url: false } }, 'postcss-loader', 'sass-loader'],
+                    exclude: /node_modules/,
+                  },
+                  {
+                    test: /\.css$/,
+                    use: [{ loader: 'css-loader', options: { url: false } }, 'postcss-loader'],
+                    exclude: /node_modules/,
+                  },
+                ]
+              : <any[]>[
+                  {
+                    test: /\.s(a|c)ss$/,
+>>>>>>> b0edfd8e4d073506d29eee4fd67a3c4e89bb4a72
               use: [
                 MiniCssExtractPlugin.loader,
                 { loader: 'css-loader', options: { url: false } },
@@ -181,10 +268,22 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
             },
             {
               test: /\.css$/,
+<<<<<<< HEAD
               use: [MiniCssExtractPlugin.loader, { loader: 'css-loader', options: { url: false } }, 'postcss-loader'],
               exclude: /node_modules/,
             },
           ],
+=======
+                    use: [
+                      MiniCssExtractPlugin.loader,
+                      { loader: 'css-loader', options: { url: false } },
+                      'postcss-loader',
+                    ],
+                    exclude: /node_modules/,
+                  },
+                ],
+          ),
+>>>>>>> b0edfd8e4d073506d29eee4fd67a3c4e89bb4a72
         },
       ],
     },
@@ -198,7 +297,42 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
       ],
       alias: {},
     },
+<<<<<<< HEAD
     plugins: plugins,
+=======
+    plugins: (entry.html === undefined
+      ? [new MiniCssExtractPlugin()]
+      : [
+          new HtmlWebpackPlugin({
+            template: path.join(__dirname, entry.html),
+            filename: path.parse(entry.html).base,
+            scriptLoading: 'module',
+            cache: false,
+          }),
+          new HtmlInlineScriptWebpackPlugin(),
+          new MiniCssExtractPlugin(),
+          new HTMLInlineCSSWebpackPlugin({
+            styleTagFactory({ style }: { style: string }) {
+              return `<style>${style}</style>`;
+            },
+          }),
+        ]
+    )
+      .concat({ apply: watch_it }, new VueLoaderPlugin())
+      .concat(
+        should_obfuscate
+          ? [
+              new WebpackObfuscator({
+                controlFlowFlattening: true,
+                numbersToExpressions: true,
+                selfDefending: true,
+                simplify: true,
+                splitStrings: true,
+              }),
+            ]
+          : [],
+      ),
+>>>>>>> b0edfd8e4d073506d29eee4fd67a3c4e89bb4a72
     optimization: {
       minimize: true,
       minimizer: [
@@ -236,8 +370,12 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         },
       },
     },
+<<<<<<< HEAD
     externals: [
       ({ context, request }, callback) => {
+=======
+    externals: ({ context, request }, callback) => {
+>>>>>>> b0edfd8e4d073506d29eee4fd67a3c4e89bb4a72
         if (!context || !request) {
           return callback();
         }
@@ -246,7 +384,11 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
           request.startsWith('-') ||
           request.startsWith('.') ||
           request.startsWith('/') ||
+<<<<<<< HEAD
           request.startsWith('@') ||
+=======
+        request.startsWith('!') ||
+>>>>>>> b0edfd8e4d073506d29eee4fd67a3c4e89bb4a72
           request.startsWith('http') ||
           path.isAbsolute(request) ||
           fs.existsSync(path.join(context, request)) ||
@@ -256,10 +398,19 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         }
 
         const builtin = {
+<<<<<<< HEAD
           lodash: '_',
           toastr: 'toastr',
           yaml: 'YAML',
           jquery: '$',
+=======
+        jquery: '$',
+        lodash: '_',
+        toastr: 'toastr',
+        vue: 'Vue',
+        'vue-router': 'VueRouter',
+        yaml: 'YAML',
+>>>>>>> b0edfd8e4d073506d29eee4fd67a3c4e89bb4a72
           zod: 'z',
         };
         if (request in builtin) {
@@ -267,7 +418,10 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         }
         return callback(null, 'module-import https://testingcf.jsdelivr.net/npm/' + request + '/+esm');
       },
+<<<<<<< HEAD
     ],
+=======
+>>>>>>> b0edfd8e4d073506d29eee4fd67a3c4e89bb4a72
   });
 }
 

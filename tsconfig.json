@@ -13,11 +13,15 @@
     "module": "ESNext",
     "outDir": "dist",
     "baseUrl": "src",
+<<<<<<< HEAD
     "paths": {
       "@/*": [
         "./*",
       ]
     },
+=======
+    "paths": {},
+>>>>>>> 5e885b7ae834206899b44047b20624e55ec868f0
     "moduleDetection": "auto",
     "moduleResolution": "bundler",
     "allowUmdGlobalAccess": true,
@@ -37,7 +41,11 @@
   "include": [
     "@types",
     "src",
+<<<<<<< HEAD
     "global.d.ts",
+=======
+    "*.d.ts",
+>>>>>>> 5e885b7ae834206899b44047b20624e55ec868f0
   ],
   "exclude": [
     "**/dist/**",

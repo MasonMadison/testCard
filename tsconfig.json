@@ -15,7 +15,11 @@
     "baseUrl": "src",
     "paths": {
       "@/*": [
+<<<<<<< HEAD
         "./*",
+=======
+        "./*"
+>>>>>>> a769e68fbf6275d9810700842203a0d57ac9c157
       ]
     },
     "moduleDetection": "auto",
@@ -27,6 +31,10 @@
     "checkJs": false,
     "sourceMap": true,
     "strict": true,
+<<<<<<< HEAD
+=======
+    "jsx": "react-jsx",
+>>>>>>> a769e68fbf6275d9810700842203a0d57ac9c157
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -37,7 +45,11 @@
   "include": [
     "@types",
     "src",
+<<<<<<< HEAD
     "global.d.ts",
+=======
+    "*.d.ts",
+>>>>>>> a769e68fbf6275d9810700842203a0d57ac9c157
   ],
   "exclude": [
     "**/dist/**",

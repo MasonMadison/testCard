@@ -1,1 +1,10 @@
+<<<<<<< HEAD
 import './index.scss';
+=======
+import { createApp } from 'vue';
+import app from './app.vue';
+
+$(() => {
+  createApp(app).mount('#app');
+});
+>>>>>>> 4e5049c48ba60ffb6caf6bf2fd6c7e846f4d4480
